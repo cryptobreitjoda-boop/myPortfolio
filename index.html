@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JodaAI Hub - Neural Portfolio</title>
+    <title>JodaAI Hub - Neural Portfolio & CMS</title>
     <style>
         :root {
             --bg-main: #0a0c16;
@@ -13,6 +13,7 @@
             --neon-purple: #9d4edd;
             --neon-pink: #ff007f;
             --neon-green: #00ff88;
+            --neon-amber: #ffaa00;
             --text-main: #f0f4fc;
             --text-muted: #8e9bb4;
             --border-glow: rgba(0, 240, 255, 0.2);
@@ -48,7 +49,6 @@
             overflow-x: hidden;
         }
 
-        /* Ambient animated grid */
         .cyber-grid {
             position: fixed;
             top: 0;
@@ -65,8 +65,9 @@
 
         .app-container {
             width: min(94vw, 1100px);
-            max-height: 94vh;
-            background: rgba(10, 13, 24, 0.85);
+            height: 92vh;
+            max-height: 92vh;
+            background: rgba(10, 13, 24, 0.88);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-glow);
@@ -79,20 +80,22 @@
             z-index: 1;
         }
 
-        /* Top Header */
+        /* Header */
         header {
-            padding: clamp(1rem, 2.5vw, 1.5rem) clamp(1.2rem, 3vw, 2rem);
+            padding: clamp(0.8rem, 2vw, 1.2rem) clamp(1rem, 3vw, 1.8rem);
             border-bottom: 1px solid var(--glass-border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(18, 22, 39, 0.6);
+            background: rgba(18, 22, 39, 0.7);
+            flex-shrink: 0;
         }
 
         .brand-logo {
             display: flex;
             align-items: center;
             gap: 10px;
+            cursor: pointer;
         }
 
         .logo-icon {
@@ -105,10 +108,11 @@
             justify-content: center;
             font-size: 20px;
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+            flex-shrink: 0;
         }
 
         .brand-title {
-            font-size: clamp(1.1rem, 2.8vw, 1.4rem);
+            font-size: clamp(1.05rem, 2.5vw, 1.35rem);
             font-weight: 800;
             letter-spacing: 0.5px;
             background: linear-gradient(90deg, #fff, var(--neon-cyan));
@@ -116,14 +120,20 @@
             -webkit-text-fill-color: transparent;
         }
 
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .neural-status {
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--neon-green);
             background: rgba(0, 255, 136, 0.1);
-            padding: 4px 10px;
+            padding: 5px 10px;
             border-radius: 20px;
             border: 1px solid rgba(0, 255, 136, 0.3);
             font-weight: 600;
@@ -135,28 +145,35 @@
             background-color: var(--neon-green);
             border-radius: 50%;
             box-shadow: 0 0 8px var(--neon-green);
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
 
         /* Navigation Tabs */
         .nav-tabs {
             display: flex;
             padding: 8px 12px;
-            gap: 8px;
-            background: rgba(14, 17, 30, 0.9);
+            gap: 6px;
+            background: rgba(14, 17, 30, 0.95);
             border-bottom: 1px solid var(--glass-border);
             overflow-x: auto;
             scrollbar-width: none;
+            flex-shrink: 0;
         }
         .nav-tabs::-webkit-scrollbar { display: none; }
 
         .tab-btn {
             flex: 1;
             min-width: fit-content;
-            padding: 8px 14px;
+            padding: 8px 12px;
             border: none;
             background: transparent;
             color: var(--text-muted);
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 600;
             border-radius: 8px;
             cursor: pointer;
@@ -174,21 +191,32 @@
             box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.1);
         }
 
-        /* Scrollable Content */
+        .tab-btn.admin-tab-btn {
+            background: rgba(255, 0, 127, 0.1);
+            color: #ff70b0;
+            border: 1px solid rgba(255, 0, 127, 0.25);
+        }
+
+        .tab-btn.admin-tab-btn.active {
+            background: rgba(255, 0, 127, 0.25);
+            color: #ff99cc;
+            border: 1px solid var(--neon-pink);
+            box-shadow: 0 0 12px rgba(255, 0, 127, 0.3);
+        }
+
+        /* Scrollable Content Container */
         .main-content {
             flex: 1;
             overflow-y: auto;
-            padding: clamp(1rem, 3vw, 1.8rem);
+            padding: clamp(0.9rem, 2.5vw, 1.5rem);
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.2rem;
             scrollbar-width: thin;
             scrollbar-color: var(--border-glow) transparent;
         }
 
-        .main-content::-webkit-scrollbar {
-            width: 5px;
-        }
+        .main-content::-webkit-scrollbar { width: 5px; }
         .main-content::-webkit-scrollbar-thumb {
             background: var(--border-glow);
             border-radius: 10px;
@@ -199,7 +227,7 @@
             background: linear-gradient(135deg, rgba(28, 34, 60, 0.7) 0%, rgba(157, 78, 221, 0.15) 100%);
             border: 1px solid var(--glass-border);
             border-radius: 18px;
-            padding: clamp(1.2rem, 3vw, 1.8rem);
+            padding: clamp(1.1rem, 2.5vw, 1.6rem);
             position: relative;
             overflow: hidden;
         }
@@ -216,7 +244,7 @@
 
         .hero-tag {
             display: inline-block;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             font-weight: 700;
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -225,20 +253,49 @@
         }
 
         .hero-title {
-            font-size: clamp(1.2rem, 3.5vw, 1.8rem);
+            font-size: clamp(1.15rem, 3.2vw, 1.7rem);
             font-weight: 800;
             line-height: 1.25;
             margin-bottom: 8px;
         }
 
         .hero-desc {
-            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            font-size: clamp(0.82rem, 1.8vw, 0.92rem);
             color: var(--text-muted);
             line-height: 1.5;
             max-width: 650px;
         }
 
-        /* Section Title & Filter */
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+            font-weight: 800;
+            color: var(--neon-cyan);
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        /* Showcase & Badges */
         .section-header {
             display: flex;
             align-items: center;
@@ -248,7 +305,7 @@
         }
 
         .section-title {
-            font-size: clamp(1rem, 2.2vw, 1.25rem);
+            font-size: clamp(0.95rem, 2vw, 1.15rem);
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -264,7 +321,7 @@
 
         .badge-pill {
             padding: 4px 10px;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             border-radius: 14px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
@@ -280,21 +337,21 @@
             border-color: rgba(0, 240, 255, 0.4);
         }
 
-        /* Pipeline Grid */
+        /* Projects Grid */
         .project-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: clamp(1rem, 2.5vw, 1.3rem);
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: clamp(0.9rem, 2vw, 1.2rem);
         }
 
         .card {
             background: var(--bg-card);
             border: 1px solid var(--glass-border);
             border-radius: 16px;
-            padding: 1.1rem;
+            padding: 1rem;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
             cursor: pointer;
             position: relative;
@@ -314,10 +371,10 @@
         }
 
         .card-avatar {
-            font-size: 2rem;
+            font-size: 1.8rem;
             background: rgba(255, 255, 255, 0.05);
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -326,8 +383,8 @@
         }
 
         .stage-pill {
-            font-size: 0.7rem;
-            padding: 4px 8px;
+            font-size: 0.68rem;
+            padding: 3px 7px;
             border-radius: 6px;
             font-weight: 700;
             text-transform: uppercase;
@@ -339,38 +396,32 @@
         .stage-live { background: rgba(0, 255, 136, 0.15); color: var(--neon-green); border: 1px solid rgba(0, 255, 136, 0.3); }
 
         .card-body h3 {
-            font-size: 1.05rem;
+            font-size: 1rem;
             margin-bottom: 4px;
             font-weight: 700;
             color: #fff;
         }
 
         .card-body p {
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
             line-height: 1.4;
         }
 
-        /* Progress Bar for Pipeline */
-        .pipeline-progress-container {
-            margin-top: 4px;
-        }
-
+        .pipeline-progress-container { margin-top: 2px; }
         .progress-label {
             display: flex;
             justify-content: space-between;
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
             margin-bottom: 4px;
         }
-
         .progress-bar-bg {
             height: 5px;
             background: rgba(255, 255, 255, 0.08);
             border-radius: 10px;
             overflow: hidden;
         }
-
         .progress-bar-fill {
             height: 100%;
             border-radius: 10px;
@@ -383,7 +434,7 @@
             align-items: center;
             padding-top: 8px;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--text-muted);
         }
 
@@ -397,10 +448,252 @@
             background: rgba(255, 255, 255, 0.06);
             padding: 2px 6px;
             border-radius: 4px;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
         }
 
-        /* Interactive Lab / Sandbox Modal */
+        /* Buttons & Controls */
+        .primary-btn {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            color: #050811;
+            font-weight: 700;
+            border: none;
+            padding: 9px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+        .primary-btn:active { transform: scale(0.98); opacity: 0.85; }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.14); }
+
+        .btn-danger {
+            background: rgba(255, 0, 80, 0.15);
+            border: 1px solid rgba(255, 0, 80, 0.3);
+            color: #ff5e7e;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-danger:hover { background: rgba(255, 0, 80, 0.3); }
+
+        .btn-edit {
+            background: rgba(0, 240, 255, 0.15);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            color: var(--neon-cyan);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* ---------------- CMS DASHBOARD STYLES ---------------- */
+        .cms-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        /* Admin Login Card */
+        .admin-auth-card {
+            background: rgba(18, 22, 39, 0.85);
+            border: 1px solid rgba(255, 0, 127, 0.4);
+            border-radius: 20px;
+            padding: clamp(1.5rem, 4vw, 2.5rem);
+            max-width: 440px;
+            margin: 2rem auto;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 0, 127, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            text-align: center;
+            animation: fadeInAuth 0.3s ease;
+        }
+
+        @keyframes fadeInAuth {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-icon-badge {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(255, 0, 127, 0.3), rgba(157, 78, 221, 0.3));
+            border: 1px solid var(--neon-pink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 4px auto;
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.3);
+        }
+
+        .auth-error-msg {
+            background: rgba(255, 0, 80, 0.15);
+            border: 1px solid rgba(255, 0, 80, 0.4);
+            color: #ff5e7e;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            display: none;
+            text-align: left;
+        }
+
+        .cms-header-card {
+            background: linear-gradient(135deg, rgba(255, 0, 127, 0.1) 0%, rgba(157, 78, 221, 0.15) 100%);
+            border: 1px solid rgba(255, 0, 127, 0.3);
+            border-radius: 16px;
+            padding: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .cms-subnav {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .cms-tab-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .cms-tab-btn.active {
+            background: rgba(255, 0, 127, 0.25);
+            color: #fff;
+            border-color: var(--neon-pink);
+        }
+
+        .cms-section {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .cms-section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            text-align: left;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background: rgba(5, 7, 14, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 65px;
+        }
+
+        .cms-table-wrapper {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .cms-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            text-align: left;
+        }
+
+        .cms-table th {
+            background: rgba(255, 255, 255, 0.04);
+            padding: 10px;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .cms-table td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .cms-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Modal Overlay */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -425,13 +718,13 @@
         }
 
         .modal-card {
-            width: min(90vw, 550px);
-            background: #111422;
+            width: min(92vw, 560px);
+            background: #111424;
             border: 1px solid rgba(0, 240, 255, 0.4);
             border-radius: 20px;
-            padding: clamp(1.2rem, 3vw, 1.6rem);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.7), 0 0 20px rgba(0, 240, 255, 0.2);
-            max-height: 85vh;
+            padding: clamp(1.1rem, 3vw, 1.5rem);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8), 0 0 25px rgba(0, 240, 255, 0.2);
+            max-height: 88vh;
             display: flex;
             flex-direction: column;
             gap: 1rem;
@@ -518,10 +811,7 @@
             color: var(--text-muted);
             font-weight: 600;
         }
-
-        .step-node.completed .step-name, .step-node.active .step-name {
-            color: var(--text-main);
-        }
+        .step-node.completed .step-name, .step-node.active .step-name { color: var(--text-main); }
 
         .demo-sandbox {
             background: rgba(0, 0, 0, 0.4);
@@ -543,90 +833,38 @@
             font-size: 0.85rem;
             outline: none;
         }
-        .demo-input:focus {
-            border-color: var(--neon-cyan);
-        }
+        .demo-input:focus { border-color: var(--neon-cyan); }
 
-        .primary-btn {
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-            color: #050811;
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #141829;
+            color: var(--neon-cyan);
+            border: 1px solid var(--neon-cyan);
+            box-shadow: 0 5px 20px rgba(0, 240, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.82rem;
             font-weight: 700;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.85rem;
+            z-index: 200;
+            transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            pointer-events: none;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: opacity 0.2s;
-        }
-        .primary-btn:active {
-            opacity: 0.8;
-        }
-
-        /* Quick Stats Matrix */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
         }
-
-        .stat-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 10px;
-            text-align: center;
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
         }
 
-        .stat-value {
-            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-            font-weight: 800;
-            color: var(--neon-cyan);
-        }
-
-        .stat-label {
-            font-size: 0.68rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 2px;
-        }
-
-        /* New AI Idea Submission Card */
-        .idea-creator {
-            background: rgba(157, 78, 221, 0.08);
-            border: 1px dashed rgba(157, 78, 221, 0.3);
-            border-radius: 16px;
-            padding: 1.1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .idea-creator input, .idea-creator select {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--glass-border);
-            color: #fff;
-            padding: 8px 10px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-        }
-
-        .idea-creator select option {
-            background: #111422;
-        }
-
-        /* Responsive Breakpoints */
-        @media (max-width: 480px) {
-            .project-grid {
-                grid-template-columns: 1fr;
-            }
-            .stats-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
+        @media (max-width: 580px) {
+            .project-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .cms-subnav { width: 100%; }
+            .cms-tab-btn { flex: 1; text-align: center; }
         }
     </style>
 </head>
@@ -634,98 +872,318 @@
     <div class="cyber-grid"></div>
 
     <div class="app-container">
-        <!-- Hub Header -->
+        <!-- Top Header -->
         <header>
-            <div class="brand-logo">
-                <div class="logo-icon">🤖</div>
+            <div class="brand-logo" onclick="switchView('showcase')">
+                <div class="logo-icon" id="headerLogoIcon">🤖</div>
                 <div>
-                    <div class="brand-title">JodaAI Hub</div>
-                    <div style="font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.5px;">NEURAL PIPELINE & LAB</div>
+                    <div class="brand-title" id="headerTitle">JodaAI Hub</div>
+                    <div style="font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.5px;" id="headerSubtitle">NEURAL PIPELINE & LAB</div>
                 </div>
             </div>
-            <div class="neural-status">
-                <div class="pulse-dot"></div>
-                <span>CORE ACTIVE</span>
+            <div class="header-actions">
+                <div class="neural-status" id="headerStatusBadge">
+                    <div class="pulse-dot"></div>
+                    <span id="headerStatusText">CORE ACTIVE</span>
+                </div>
             </div>
         </header>
 
-        <!-- Stage Navigation Tabs -->
+        <!-- Navigation Tabs -->
         <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchFilter('all')">🌐 Alle Projekte</button>
-            <button class="tab-btn" onclick="switchFilter('idea')">💡 Konzept & Idee</button>
-            <button class="tab-btn" onclick="switchFilter('dev')">⚙️ In Entwicklung</button>
-            <button class="tab-btn" onclick="switchFilter('live')">🚀 Fertiggestellt</button>
+            <button class="tab-btn active" id="tab-all" onclick="setMainView('showcase', 'all')">🌐 Alle Projekte</button>
+            <button class="tab-btn" id="tab-idea" onclick="setMainView('showcase', 'idea')">💡 Konzepte</button>
+            <button class="tab-btn" id="tab-dev" onclick="setMainView('showcase', 'dev')">⚙️ Im Training</button>
+            <button class="tab-btn" id="tab-live" onclick="setMainView('showcase', 'live')">🚀 Live Orbit</button>
+            <button class="tab-btn admin-tab-btn" id="tab-admin" onclick="setMainView('cms', 'dashboard')">🔒 Admin CMS</button>
         </div>
 
-        <!-- Scrollable Main View -->
-        <div class="main-content">
-            <!-- Hero Highlight -->
-            <div class="hero-banner">
-                <span class="hero-tag">AI Architecture Portfolio</span>
-                <h1 class="hero-title">Von der ersten Synapse zum fertigen Modell.</h1>
-                <p class="hero-desc">Willkommen im JodaAI Hub. Verfolge den gesamten Entstehungszyklus innovativer Machine-Learning Modelle, LLM-Agenten und intelligenter Workflows.</p>
+        <!-- Scrollable Main Content -->
+        <div class="main-content" id="mainScrollArea">
+            
+            <!-- VIEW 1: PUBLIC SHOWCASE PORTFOLIO -->
+            <div id="showcaseView" style="display: flex; flex-direction: column; gap: 1.2rem;">
+                <!-- Hero Highlight -->
+                <div class="hero-banner">
+                    <span class="hero-tag" id="heroTagDisplay">AI Architecture Portfolio</span>
+                    <h1 class="hero-title" id="heroTitleDisplay">Von der ersten Synapse zum fertigen Modell.</h1>
+                    <p class="hero-desc" id="heroDescDisplay">Willkommen im JodaAI Hub. Verfolge den gesamten Entstehungszyklus innovativer Machine-Learning Modelle, LLM-Agenten und intelligenter Workflows.</p>
+                </div>
+
+                <!-- Stats Matrix -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-total">0</div>
+                        <div class="stat-label">AI Projekte</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: var(--neon-purple);" id="stat-dev">0</div>
+                        <div class="stat-label">Im Training</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: var(--neon-green);" id="stat-live">0</div>
+                        <div class="stat-label">Im Orbit (Live)</div>
+                    </div>
+                </div>
+
+                <!-- Section Header & Badges -->
+                <div class="section-header">
+                    <h2 class="section-title">🧬 Pipeline Showcase</h2>
+                    <div class="filter-badges">
+                        <span class="badge-pill active" onclick="setSubFilter('all', this)">Alle</span>
+                        <span class="badge-pill" onclick="setSubFilter('LLM', this)">LLM & Agents</span>
+                        <span class="badge-pill" onclick="setSubFilter('Vision', this)">Vision & GenAI</span>
+                        <span class="badge-pill" onclick="setSubFilter('Automation', this)">Workflows</span>
+                    </div>
+                </div>
+
+                <!-- Projects Grid -->
+                <div class="project-grid" id="projectGrid">
+                    <!-- Dynamic Projects Injected Here -->
+                </div>
+
+                <!-- Quick Idea Submission Card -->
+                <div class="cms-section" style="background: rgba(157, 78, 221, 0.08); border: 1px dashed rgba(157, 78, 221, 0.35);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <strong style="font-size: 0.9rem; color: var(--neon-cyan);">💡 Schnell-Idee einreichen</strong>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">Sync to LocalHub</span>
+                    </div>
+                    <input type="text" id="newIdeaTitle" class="form-input" placeholder="Projektname (z.B. AutoDoc Copilot)..." />
+                    <input type="text" id="newIdeaDesc" class="form-input" placeholder="Kurzbeschreibung & Kernarchitektur..." />
+                    <div style="display: flex; gap: 8px;">
+                        <select id="newIdeaCategory" class="form-select" style="flex: 1;">
+                            <option value="LLM">LLM & Agents</option>
+                            <option value="Vision">Vision & GenAI</option>
+                            <option value="Automation">Workflows</option>
+                        </select>
+                        <button class="primary-btn" onclick="addNewIdeaQuick()">Eintragen</button>
+                    </div>
+                </div>
             </div>
 
-            <!-- Stats Matrix -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="stat-total">6</div>
-                    <div class="stat-label">AI Projekte</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" style="color: var(--neon-purple);" id="stat-dev">2</div>
-                    <div class="stat-label">Im Training</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" style="color: var(--neon-green);" id="stat-live">3</div>
-                    <div class="stat-label">Im Orbit (Live)</div>
-                </div>
-            </div>
+            <!-- VIEW 2: ADMINISTRATOR CMS (LOGIN & DASHBOARD) -->
+            <div id="cmsView" class="cms-container" style="display: none;">
+                
+                <!-- LOGIN SCREEN (Shown if NOT authenticated) -->
+                <div id="cmsLoginBox" class="admin-auth-card">
+                    <div class="auth-icon-badge">🔐</div>
+                    <div>
+                        <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; letter-spacing: 0.5px;">Admin Authentifizierung</h2>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                            Geschützter Bereich. Bitte gib deine Autorisierungsdaten ein, um Zugriff auf das CMS zu erhalten.
+                        </p>
+                    </div>
 
-            <!-- Projects Grid Section -->
-            <div class="section-header">
-                <h2 class="section-title">🧬 Pipeline Showcase</h2>
-                <div class="filter-badges">
-                    <span class="badge-pill active" onclick="setSubFilter('all', this)">Alle</span>
-                    <span class="badge-pill" onclick="setSubFilter('LLM', this)">LLM & Agents</span>
-                    <span class="badge-pill" onclick="setSubFilter('Vision', this)">Vision & GenAI</span>
-                    <span class="badge-pill" onclick="setSubFilter('Automation', this)">Workflows</span>
-                </div>
-            </div>
+                    <div id="authErrorMessage" class="auth-error-msg">
+                        ⚠️ Ungültiger Benutzername oder Passwort!
+                    </div>
 
-            <div class="project-grid" id="projectGrid">
-                <!-- Injected via JavaScript -->
-            </div>
+                    <div class="form-group">
+                        <label class="form-label">Benutzername</label>
+                        <input type="text" id="adminUserInput" class="form-input" placeholder="Benutzername eingeben" autocomplete="off" />
+                    </div>
 
-            <!-- Quick Add Idea Module (Persistence Demo) -->
-            <div class="idea-creator">
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <strong style="font-size: 0.9rem; color: var(--neon-cyan);">💡 Neue AI Idee einreichen</strong>
-                    <span style="font-size: 0.7rem; color: var(--text-muted);">Sync to LocalHub</span>
+                    <div class="form-group">
+                        <label class="form-label">Passwort</label>
+                        <input type="password" id="adminPassInput" class="form-input" placeholder="••••••••••••" />
+                    </div>
+
+                    <button class="primary-btn" style="width: 100%; padding: 11px; margin-top: 5px; font-size: 0.9rem;" onclick="handleAdminLogin()">
+                        🔑 Anmelden & Freischalten
+                    </button>
+
+                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: -4px;">
+                        Verbindung gesichert • Session lokal aktiv
+                    </div>
                 </div>
-                <input type="text" id="newIdeaTitle" placeholder="Projektname (z.B. AutoDoc Copilot)..." />
-                <input type="text" id="newIdeaDesc" placeholder="Kurzbeschreibung & Kernarchitektur..." />
-                <div style="display: flex; gap: 8px;">
-                    <select id="newIdeaCategory" style="flex: 1;">
-                        <option value="LLM">LLM & Agents</option>
-                        <option value="Vision">Vision & GenAI</option>
-                        <option value="Automation">Workflows</option>
-                    </select>
-                    <button class="primary-btn" onclick="addNewIdea()">Eintragen</button>
+
+                <!-- CMS AUTHENTICATED AREA (Shown if authenticated) -->
+                <div id="cmsAuthenticatedContent" style="display: none; flex-direction: column; gap: 1.2rem;">
+                    
+                    <!-- CMS Top Header Card -->
+                    <div class="cms-header-card">
+                        <div>
+                            <div style="font-size: 1.1rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px;">
+                                <span>🛠️ Administrator CMS Dashboard</span>
+                                <span style="font-size: 0.7rem; background: rgba(0,255,136,0.15); color: var(--neon-green); border: 1px solid rgba(0,255,136,0.3); padding: 2px 8px; border-radius: 12px;">Auth: Klaus</span>
+                            </div>
+                            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                                Verwalte Projekt-Pipelines, Webseiten-Texte und System-Einstellungen in Echtzeit.
+                            </p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <div class="cms-subnav">
+                                <button class="cms-tab-btn active" id="cms-btn-projects" onclick="switchCmsTab('projects')">🧬 Projekte</button>
+                                <button class="cms-tab-btn" id="cms-btn-create" onclick="switchCmsTab('create')">➕ Neu</button>
+                                <button class="cms-tab-btn" id="cms-btn-pages" onclick="switchCmsTab('pages')">📝 Texte</button>
+                                <button class="cms-tab-btn" id="cms-btn-settings" onclick="switchCmsTab('settings')">⚙️ Settings</button>
+                            </div>
+                            <button class="btn-danger" style="padding: 6px 12px; font-size: 0.78rem;" onclick="handleAdminLogout()">🚪 Abmelden</button>
+                        </div>
+                    </div>
+
+                    <!-- CMS TAB 1: Projektverwaltung & Tabelle -->
+                    <div id="cmsTabProjects" class="cms-section">
+                        <div class="cms-section-title">
+                            <span>📋 Alle registrierten AI-Pipelines</span>
+                            <button class="primary-btn" style="padding: 5px 10px; font-size: 0.75rem;" onclick="switchCmsTab('create')">➕ Neu erstellen</button>
+                        </div>
+
+                        <div class="cms-table-wrapper">
+                            <table class="cms-table">
+                                <thead>
+                                    <tr>
+                                        <th>Icon</th>
+                                        <th>Titel & Kategorie</th>
+                                        <th>Status</th>
+                                        <th>Progress</th>
+                                        <th style="text-align: right;">Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cmsProjectTableBody">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- CMS TAB 2: Neues Projekt anlegen / Editor Form -->
+                    <div id="cmsTabCreate" class="cms-section" style="display: none;">
+                        <div class="cms-section-title">
+                            <span id="cmsFormTitle">➕ Neues AI-Projekt konfigurieren</span>
+                            <button class="btn-secondary" onclick="resetProjectForm()">Formular leeren</button>
+                        </div>
+
+                        <input type="hidden" id="cmsEditId" value="" />
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Emoji / Icon</label>
+                                <input type="text" id="cmsFormEmoji" class="form-input" placeholder="z.B. 🧠, 🤖, 🎙️" value="⚡" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Projektname</label>
+                                <input type="text" id="cmsFormTitleInput" class="form-input" placeholder="z.B. Neural Voice Synth" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Kategorie</label>
+                                <select id="cmsFormCategory" class="form-select">
+                                    <option value="LLM">LLM & Agents</option>
+                                    <option value="Vision">Vision & GenAI</option>
+                                    <option value="Automation">Workflows</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Entwicklungsphase</label>
+                                <select id="cmsFormStage" class="form-select" onchange="autoAdjustProgress(this.value)">
+                                    <option value="idea">Konzept / Idee</option>
+                                    <option value="dev">In Entwicklung / Training</option>
+                                    <option value="live">Live & Fertiggestellt</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Fortschritt (<span id="cmsProgressVal">50</span>%)</label>
+                                <input type="range" id="cmsFormProgress" min="0" max="100" value="50" style="width:100%; accent-color: var(--neon-cyan); cursor:pointer;" oninput="document.getElementById('cmsProgressVal').innerText = this.value" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tech-Tags (Kommagetrennt)</label>
+                                <input type="text" id="cmsFormTags" class="form-input" placeholder="z.B. PyTorch, LoRA, FastAPI" />
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Kurzbeschreibung (Showcase Card)</label>
+                                <input type="text" id="cmsFormDesc" class="form-input" placeholder="Prägnante Kurzbeschreibung..." />
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Detaillierte Architektur & Details (Modal)</label>
+                                <textarea id="cmsFormDetails" class="form-textarea" placeholder="Ausführliche Beschreibung von Training, Datensatz und Tech-Stack..."></textarea>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+                            <button class="btn-secondary" onclick="switchCmsTab('projects')">Abbrechen</button>
+                            <button class="primary-btn" onclick="saveProjectFromCMS()">💾 Projekt Speichern</button>
+                        </div>
+                    </div>
+
+                    <!-- CMS TAB 3: Seiten-Inhalte & Texte Bearbeiten -->
+                    <div id="cmsTabPages" class="cms-section" style="display: none;">
+                        <div class="cms-section-title">
+                            <span>📝 Seiten-Inhalte & Text-Editor</span>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Hub Name (Header)</label>
+                                <input type="text" id="cmsSiteTitle" class="form-input" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Hub Subtitel</label>
+                                <input type="text" id="cmsSiteSubtitle" class="form-input" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Header Status Text</label>
+                                <input type="text" id="cmsSiteStatus" class="form-input" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Hero Badge / Tag</label>
+                                <input type="text" id="cmsHeroTag" class="form-input" />
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Hero Haupt-Headline</label>
+                                <input type="text" id="cmsHeroTitle" class="form-input" />
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Hero Fließtext / Beschreibung</label>
+                                <textarea id="cmsHeroDesc" class="form-textarea"></textarea>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+                            <button class="primary-btn" onclick="savePageSettings()">💾 Seiten-Texte aktualisieren</button>
+                        </div>
+                    </div>
+
+                    <!-- CMS TAB 4: Hub Settings, Backup & Reset -->
+                    <div id="cmsTabSettings" class="cms-section" style="display: none;">
+                        <div class="cms-section-title">
+                            <span>⚙️ System, Backup & Datenbank</span>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <p style="font-size: 0.82rem; color: var(--text-muted);">
+                                Alle Änderungen werden persistent im lokalen Browserspeicher (localStorage) gesichert. Hier können Backups exportiert oder der Ausgangszustand wiederhergestellt werden.
+                            </p>
+
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button class="btn-secondary" onclick="exportDataJSON()">📥 Backup Exportieren (JSON)</button>
+                                <button class="btn-secondary" onclick="importDataPrompt()">📤 Backup Wiederherstellen (JSON)</button>
+                                <button class="btn-danger" onclick="resetToFactoryDefaults()">⚠️ Auf Standard zurücksetzen</button>
+                            </div>
+
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); margin-top: 10px;">
+                                <div style="font-size: 0.75rem; color: var(--neon-cyan); font-weight: 700;">HUB METRIKEN & DIAGNOSTIK</div>
+                                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;" id="cmsDiagnosticsText">
+                                    Storage Key: JODA_AI_HUB_STORAGE_V2 • Items geladen: 6
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+
             </div>
         </div>
     </div>
 
-    <!-- Modal for Project Details & Live Demo -->
+    <!-- Project Detail & Simulation Modal -->
     <div class="modal-overlay" id="projectModal" onclick="closeModalOnBg(event)">
         <div class="modal-card">
             <div class="modal-header">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <span id="modalEmoji" style="font-size: 1.8rem;">⚡</span>
                     <div>
-                        <h3 id="modalTitle" style="font-size: 1.2rem; color: #fff;">Model Name</h3>
-                        <span id="modalCategory" style="font-size: 0.75rem; color: var(--neon-cyan);">LLM</span>
+                        <h3 id="modalTitle" style="font-size: 1.15rem; color: #fff;">Model Name</h3>
+                        <span id="modalCategory" style="font-size: 0.72rem; color: var(--neon-cyan);">LLM</span>
                     </div>
                 </div>
                 <button class="modal-close" onclick="closeModal()">✕</button>
@@ -746,7 +1204,7 @@
                 </div>
             </div>
 
-            <p id="modalDesc" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;"></p>
+            <p id="modalDesc" style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.5;"></p>
 
             <div class="demo-sandbox">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -755,25 +1213,49 @@
                 </div>
                 <input type="text" id="demoPrompt" class="demo-input" placeholder="Prompt an das Modell senden..." />
                 <button class="primary-btn" onclick="runInferenceSimulation()">Neural Inference starten</button>
-                <div id="demoOutput" style="font-size: 0.8rem; color: #cfd6e6; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 6px; min-height: 38px; display: flex; align-items: center;">
+                <div id="demoOutput" style="font-size: 0.78rem; color: #cfd6e6; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 6px; min-height: 38px; display: flex; align-items: center;">
                     Warte auf Eingabe...
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Toast Notification -->
+    <div class="toast" id="toastMessage">
+        <span>⚡</span>
+        <span id="toastText">Aktion erfolgreich ausgeführt!</span>
+    </div>
+
     <script>
-        // Local Storage Identifier
-        const APP_STORAGE_KEY = 'JODA_AI_HUB_STORAGE_V1';
+        // Storage Key
+        const APP_STORAGE_KEY = 'JODA_AI_HUB_STORAGE_V2';
         window.APP_STORAGE_KEY = APP_STORAGE_KEY;
 
-        // Initial AI Projects State
+        // Credentials
+        const AUTH_CONFIG = {
+            user: 'Klaus',
+            pass: 'Kope8890@A'
+        };
+
+        let isAdminAuthenticated = false;
+
+        // Default Site Settings
+        const defaultSettings = {
+            siteTitle: 'JodaAI Hub',
+            siteSubtitle: 'NEURAL PIPELINE & LAB',
+            siteStatus: 'CORE ACTIVE',
+            heroTag: 'AI Architecture Portfolio',
+            heroTitle: 'Von der ersten Synapse zum fertigen Modell.',
+            heroDesc: 'Willkommen im JodaAI Hub. Verfolge den gesamten Entstehungszyklus innovativer Machine-Learning Modelle, LLM-Agenten und intelligenter Workflows.'
+        };
+
+        // Initial Seed Projects
         const defaultProjects = [
             {
                 id: '1',
                 title: 'JodaMind Voice-Agent',
                 desc: 'Autonomer Echtzeit-Sprachagent mit emotionaler Tonalitätsanpassung und RAG-Anbindung.',
-                stage: 'live', // idea, dev, live
+                stage: 'live',
                 progress: 100,
                 category: 'LLM',
                 emoji: '🎙️',
@@ -838,32 +1320,163 @@
         ];
 
         let projects = [];
+        let siteSettings = { ...defaultSettings };
         let currentFilter = 'all';
         let currentSubFilter = 'all';
+        let currentView = 'showcase'; // 'showcase' or 'cms'
         let selectedProject = null;
 
-        // Initialize and Load Data
+        // Load persisted data
         function loadData() {
             try {
-                const saved = localStorage.getItem(APP_STORAGE_KEY + '_projects');
-                if (saved) {
-                    projects = JSON.parse(saved);
+                const savedProjects = localStorage.getItem(APP_STORAGE_KEY + '_projects');
+                if (savedProjects) {
+                    projects = JSON.parse(savedProjects);
                 } else {
                     projects = [...defaultProjects];
-                    saveData();
+                }
+
+                const savedSettings = localStorage.getItem(APP_STORAGE_KEY + '_settings');
+                if (savedSettings) {
+                    siteSettings = { ...defaultSettings, ...JSON.parse(savedSettings) };
+                } else {
+                    siteSettings = { ...defaultSettings };
+                }
+
+                // Check session authentication
+                const sessionAuth = sessionStorage.getItem(APP_STORAGE_KEY + '_auth');
+                if (sessionAuth === 'true') {
+                    isAdminAuthenticated = true;
                 }
             } catch (e) {
                 projects = [...defaultProjects];
+                siteSettings = { ...defaultSettings };
             }
-            renderHub();
+
+            applySiteSettingsToUI();
+            renderShowcase();
+            renderCMSTable();
             updateStats();
         }
 
         function saveData() {
             localStorage.setItem(APP_STORAGE_KEY + '_projects', JSON.stringify(projects));
+            localStorage.setItem(APP_STORAGE_KEY + '_settings', JSON.stringify(siteSettings));
         }
 
-        function renderHub() {
+        function showToast(msg) {
+            const t = document.getElementById('toastMessage');
+            document.getElementById('toastText').innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => {
+                t.classList.remove('show');
+            }, 2500);
+        }
+
+        // Apply settings across header & hero
+        function applySiteSettingsToUI() {
+            document.getElementById('headerTitle').innerText = siteSettings.siteTitle;
+            document.getElementById('headerSubtitle').innerText = siteSettings.siteSubtitle;
+            document.getElementById('headerStatusText').innerText = siteSettings.siteStatus;
+            document.getElementById('heroTagDisplay').innerText = siteSettings.heroTag;
+            document.getElementById('heroTitleDisplay').innerText = siteSettings.heroTitle;
+            document.getElementById('heroDescDisplay').innerText = siteSettings.heroDesc;
+
+            // Fill CMS page editor inputs
+            document.getElementById('cmsSiteTitle').value = siteSettings.siteTitle;
+            document.getElementById('cmsSiteSubtitle').value = siteSettings.siteSubtitle;
+            document.getElementById('cmsSiteStatus').value = siteSettings.siteStatus;
+            document.getElementById('cmsHeroTag').value = siteSettings.heroTag;
+            document.getElementById('cmsHeroTitle').value = siteSettings.heroTitle;
+            document.getElementById('cmsHeroDesc').value = siteSettings.heroDesc;
+
+            document.getElementById('cmsDiagnosticsText').innerText = 
+                `Storage Key: ${APP_STORAGE_KEY} • Projekte in DB: ${projects.length} • Letztes Update: ${new Date().toLocaleTimeString()}`;
+        }
+
+        // View Routing
+        function setMainView(view, filter) {
+            currentView = view;
+            const showcaseEl = document.getElementById('showcaseView');
+            const cmsEl = document.getElementById('cmsView');
+
+            // Reset tab highlights
+            document.querySelectorAll('.nav-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            if (view === 'showcase') {
+                showcaseEl.style.display = 'flex';
+                cmsEl.style.display = 'none';
+                currentFilter = filter || 'all';
+                const tabEl = document.getElementById(`tab-${currentFilter}`);
+                if (tabEl) tabEl.classList.add('active');
+                renderShowcase();
+            } else if (view === 'cms') {
+                showcaseEl.style.display = 'none';
+                cmsEl.style.display = 'flex';
+                document.getElementById('tab-admin').classList.add('active');
+                
+                updateCmsAuthView();
+                if (isAdminAuthenticated) {
+                    renderCMSTable();
+                    applySiteSettingsToUI();
+                }
+            }
+        }
+
+        function switchView(view) {
+            setMainView(view, 'all');
+        }
+
+        // ---------------- ADMIN AUTHENTICATION LOGIC ----------------
+        function updateCmsAuthView() {
+            const loginBox = document.getElementById('cmsLoginBox');
+            const authContent = document.getElementById('cmsAuthenticatedContent');
+            const errorMsg = document.getElementById('authErrorMessage');
+            errorMsg.style.display = 'none';
+
+            if (isAdminAuthenticated) {
+                loginBox.style.display = 'none';
+                authContent.style.display = 'flex';
+            } else {
+                loginBox.style.display = 'flex';
+                authContent.style.display = 'none';
+                document.getElementById('adminUserInput').value = '';
+                document.getElementById('adminPassInput').value = '';
+                setTimeout(() => {
+                    document.getElementById('adminUserInput').focus();
+                }, 100);
+            }
+        }
+
+        function handleAdminLogin() {
+            const user = document.getElementById('adminUserInput').value.trim();
+            const pass = document.getElementById('adminPassInput').value;
+            const errorMsg = document.getElementById('authErrorMessage');
+
+            if (user === AUTH_CONFIG.user && pass === AUTH_CONFIG.pass) {
+                isAdminAuthenticated = true;
+                sessionStorage.setItem(APP_STORAGE_KEY + '_auth', 'true');
+                errorMsg.style.display = 'none';
+                updateCmsAuthView();
+                renderCMSTable();
+                applySiteSettingsToUI();
+                showToast('🔓 Willkommen zurück, Klaus!');
+            } else {
+                errorMsg.style.display = 'block';
+                errorMsg.innerText = '⚠️ Ungültiger Benutzername oder Passwort!';
+                document.getElementById('adminPassInput').value = '';
+            }
+        }
+
+        function handleAdminLogout() {
+            isAdminAuthenticated = false;
+            sessionStorage.removeItem(APP_STORAGE_KEY + '_auth');
+            updateCmsAuthView();
+            showToast('🔒 Erfolgreich abgemeldet.');
+        }
+
+        // Showcase Rendering
+        function renderShowcase() {
             const grid = document.getElementById('projectGrid');
             grid.innerHTML = '';
 
@@ -875,8 +1488,8 @@
 
             if (filtered.length === 0) {
                 grid.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">
-                        🔍 Keine AI-Projekte in dieser Kategorie gefunden.
+                    <div style="grid-column: 1/-1; text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
+                        🔍 Keine AI-Projekte für diese Auswahl vorhanden.
                     </div>
                 `;
                 return;
@@ -891,7 +1504,7 @@
                 card.onclick = () => openProjectModal(p);
                 card.innerHTML = `
                     <div class="card-header">
-                        <div class="card-avatar">${p.emoji || '⚡'}</div>
+                        <div class="card-avatar">${escapeHtml(p.emoji || '⚡')}</div>
                         <span class="stage-pill ${stageClass}">${stageText}</span>
                     </div>
                     <div class="card-body">
@@ -909,9 +1522,9 @@
                     </div>
                     <div class="card-footer">
                         <div class="tech-stack">
-                            ${p.tags.map(t => `<span class="tech-tag">${escapeHtml(t)}</span>`).join('')}
+                            ${(p.tags || []).map(t => `<span class="tech-tag">${escapeHtml(t)}</span>`).join('')}
                         </div>
-                        <span>🔍 Details</span>
+                        <span style="color: var(--neon-cyan); font-weight: 600;">Details ➜</span>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -928,22 +1541,15 @@
             document.getElementById('stat-live').innerText = live;
         }
 
-        function switchFilter(filter) {
-            currentFilter = filter;
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${filter}'`));
-            });
-            renderHub();
-        }
-
         function setSubFilter(cat, elem) {
             currentSubFilter = cat;
             document.querySelectorAll('.badge-pill').forEach(b => b.classList.remove('active'));
             elem.classList.add('active');
-            renderHub();
+            renderShowcase();
         }
 
-        function addNewIdea() {
+        // Quick Idea Submission
+        function addNewIdeaQuick() {
             const titleInput = document.getElementById('newIdeaTitle');
             const descInput = document.getElementById('newIdeaDesc');
             const catInput = document.getElementById('newIdeaCategory');
@@ -952,7 +1558,7 @@
             const desc = descInput.value.trim();
 
             if (!title || !desc) {
-                alert('Bitte Name und Kurzbeschreibung für das AI-Konzept eingeben!');
+                alert('Bitte Titel und Kurzbeschreibung für das AI-Konzept ausfüllen!');
                 return;
             }
 
@@ -963,20 +1569,256 @@
                 title: title,
                 desc: desc,
                 stage: 'idea',
-                progress: 10,
+                progress: 15,
                 category: catInput.value,
                 emoji: emojis[catInput.value] || '💡',
                 tags: [catInput.value, 'Konzept', 'V1.0'],
-                details: 'Initiales Konzept im JodaAI Hub registriert. Machbarkeitsanalyse & Architekturdesign laufen.'
+                details: 'Initial registriertes Konzept. Architekturprüfung läuft.'
             };
 
             projects.unshift(newProject);
             saveData();
-            renderHub();
+            renderShowcase();
+            renderCMSTable();
             updateStats();
 
             titleInput.value = '';
             descInput.value = '';
+            showToast('💡 Neues Konzept erfolgreich registriert!');
+        }
+
+        // ---------------- CMS DASHBOARD LOGIC ----------------
+        function switchCmsTab(tabId) {
+            if (!isAdminAuthenticated) return;
+
+            document.getElementById('cmsTabProjects').style.display = tabId === 'projects' ? 'flex' : 'none';
+            document.getElementById('cmsTabCreate').style.display = tabId === 'create' ? 'flex' : 'none';
+            document.getElementById('cmsTabPages').style.display = tabId === 'pages' ? 'flex' : 'none';
+            document.getElementById('cmsTabSettings').style.display = tabId === 'settings' ? 'flex' : 'none';
+
+            document.querySelectorAll('.cms-tab-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(`cms-btn-${tabId}`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            if (tabId === 'projects') {
+                renderCMSTable();
+            }
+        }
+
+        function renderCMSTable() {
+            const tbody = document.getElementById('cmsProjectTableBody');
+            tbody.innerHTML = '';
+
+            if (projects.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.5rem; color:var(--text-muted);">Keine Projekte vorhanden.</td></tr>`;
+                return;
+            }
+
+            projects.forEach(p => {
+                const tr = document.createElement('tr');
+                const stageColor = p.stage === 'live' ? 'var(--neon-green)' : (p.stage === 'dev' ? 'var(--neon-purple)' : 'var(--neon-amber)');
+                const stageLabel = p.stage === 'live' ? 'Live' : (p.stage === 'dev' ? 'Training' : 'Idee');
+
+                tr.innerHTML = `
+                    <td style="font-size: 1.3rem;">${escapeHtml(p.emoji || '⚡')}</td>
+                    <td>
+                        <strong style="color:#fff;">${escapeHtml(p.title)}</strong>
+                        <div style="font-size:0.7rem; color:var(--neon-cyan);">${escapeHtml(p.category)}</div>
+                    </td>
+                    <td><span style="color:${stageColor}; font-weight:700;">● ${stageLabel}</span></td>
+                    <td><strong>${p.progress}%</strong></td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        <button class="btn-edit" onclick="editProjectFromCMS('${p.id}')">✏️ Bearbeiten</button>
+                        <button class="btn-danger" style="margin-left: 4px;" onclick="deleteProjectFromCMS('${p.id}')">🗑️ Löschen</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function autoAdjustProgress(stage) {
+            const prog = document.getElementById('cmsFormProgress');
+            const val = document.getElementById('cmsProgressVal');
+            if (stage === 'live') {
+                prog.value = 100;
+            } else if (stage === 'dev' && prog.value >= 100) {
+                prog.value = 50;
+            } else if (stage === 'idea' && prog.value > 30) {
+                prog.value = 15;
+            }
+            val.innerText = prog.value;
+        }
+
+        function resetProjectForm() {
+            document.getElementById('cmsEditId').value = '';
+            document.getElementById('cmsFormTitle').innerText = '➕ Neues AI-Projekt konfigurieren';
+            document.getElementById('cmsFormEmoji').value = '⚡';
+            document.getElementById('cmsFormTitleInput').value = '';
+            document.getElementById('cmsFormCategory').value = 'LLM';
+            document.getElementById('cmsFormStage').value = 'dev';
+            document.getElementById('cmsFormProgress').value = 50;
+            document.getElementById('cmsProgressVal').innerText = '50';
+            document.getElementById('cmsFormTags').value = 'FastAPI, NeuralNet, PyTorch';
+            document.getElementById('cmsFormDesc').value = '';
+            document.getElementById('cmsFormDetails').value = '';
+        }
+
+        function editProjectFromCMS(id) {
+            if (!isAdminAuthenticated) return;
+            const project = projects.find(p => p.id === id);
+            if (!project) return;
+
+            document.getElementById('cmsEditId').value = project.id;
+            document.getElementById('cmsFormTitle').innerText = `✏️ Projekt bearbeiten: ${project.title}`;
+            document.getElementById('cmsFormEmoji').value = project.emoji || '⚡';
+            document.getElementById('cmsFormTitleInput').value = project.title;
+            document.getElementById('cmsFormCategory').value = project.category;
+            document.getElementById('cmsFormStage').value = project.stage;
+            document.getElementById('cmsFormProgress').value = project.progress;
+            document.getElementById('cmsProgressVal').innerText = project.progress;
+            document.getElementById('cmsFormTags').value = (project.tags || []).join(', ');
+            document.getElementById('cmsFormDesc').value = project.desc || '';
+            document.getElementById('cmsFormDetails').value = project.details || '';
+
+            switchCmsTab('create');
+        }
+
+        function saveProjectFromCMS() {
+            if (!isAdminAuthenticated) return;
+            const id = document.getElementById('cmsEditId').value;
+            const emoji = document.getElementById('cmsFormEmoji').value.trim() || '⚡';
+            const title = document.getElementById('cmsFormTitleInput').value.trim();
+            const category = document.getElementById('cmsFormCategory').value;
+            const stage = document.getElementById('cmsFormStage').value;
+            const progress = parseInt(document.getElementById('cmsFormProgress').value, 10);
+            const tagsRaw = document.getElementById('cmsFormTags').value;
+            const desc = document.getElementById('cmsFormDesc').value.trim();
+            const details = document.getElementById('cmsFormDetails').value.trim();
+
+            if (!title || !desc) {
+                alert('Bitte Projektname und Kurzbeschreibung ausfüllen!');
+                return;
+            }
+
+            const tags = tagsRaw.split(',').map(t => t.trim()).filter(t => t.length > 0);
+
+            if (id) {
+                // Update existing
+                const index = projects.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    projects[index] = {
+                        ...projects[index],
+                        emoji,
+                        title,
+                        category,
+                        stage,
+                        progress,
+                        tags: tags.length ? tags : [category],
+                        desc,
+                        details: details || desc
+                    };
+                    showToast('✅ Projekt aktualisiert!');
+                }
+            } else {
+                // Create new
+                const newProj = {
+                    id: Date.now().toString(),
+                    emoji,
+                    title,
+                    category,
+                    stage,
+                    progress,
+                    tags: tags.length ? tags : [category, 'V1.0'],
+                    desc,
+                    details: details || desc
+                };
+                projects.unshift(newProj);
+                showToast('✨ Neues Projekt erstellt!');
+            }
+
+            saveData();
+            renderShowcase();
+            renderCMSTable();
+            updateStats();
+            resetProjectForm();
+            switchCmsTab('projects');
+        }
+
+        function deleteProjectFromCMS(id) {
+            if (!isAdminAuthenticated) return;
+            const project = projects.find(p => p.id === id);
+            if (!project) return;
+
+            if (confirm(`Projekt "${project.title}" wirklich unwiderruflich löschen?`)) {
+                projects = projects.filter(p => p.id !== id);
+                saveData();
+                renderShowcase();
+                renderCMSTable();
+                updateStats();
+                showToast('🗑️ Projekt gelöscht!');
+            }
+        }
+
+        function savePageSettings() {
+            if (!isAdminAuthenticated) return;
+            siteSettings.siteTitle = document.getElementById('cmsSiteTitle').value.trim() || 'JodaAI Hub';
+            siteSettings.siteSubtitle = document.getElementById('cmsSiteSubtitle').value.trim() || 'NEURAL PIPELINE & LAB';
+            siteSettings.siteStatus = document.getElementById('cmsSiteStatus').value.trim() || 'CORE ACTIVE';
+            siteSettings.heroTag = document.getElementById('cmsHeroTag').value.trim() || 'AI Architecture Portfolio';
+            siteSettings.heroTitle = document.getElementById('cmsHeroTitle').value.trim() || 'Neural Architecture';
+            siteSettings.heroDesc = document.getElementById('cmsHeroDesc').value.trim() || '';
+
+            saveData();
+            applySiteSettingsToUI();
+            showToast('💾 Seiteninhalte erfolgreich gespeichert!');
+        }
+
+        // Backup / Export / Import / Reset
+        function exportDataJSON() {
+            if (!isAdminAuthenticated) return;
+            const data = {
+                settings: siteSettings,
+                projects: projects,
+                exportedAt: new Date().toISOString()
+            };
+            const jsonStr = JSON.stringify(data, null, 2);
+            navigator.clipboard.writeText(jsonStr).then(() => {
+                alert('Backup JSON in die Zwischenablage kopiert!');
+            }).catch(() => {
+                prompt('Kopiere dieses JSON für dein Backup:', jsonStr);
+            });
+        }
+
+        function importDataPrompt() {
+            if (!isAdminAuthenticated) return;
+            const input = prompt('Füge das JSON-Backup hier ein:');
+            if (!input) return;
+
+            try {
+                const parsed = JSON.parse(input);
+                if (parsed.projects && Array.isArray(parsed.projects)) {
+                    projects = parsed.projects;
+                    if (parsed.settings) siteSettings = { ...defaultSettings, ...parsed.settings };
+                    saveData();
+                    loadData();
+                    showToast('📥 Backup erfolgreich importiert!');
+                } else {
+                    alert('Ungültiges Datenformat!');
+                }
+            } catch (err) {
+                alert('Fehler beim Parsen des JSON: ' + err.message);
+            }
+        }
+
+        function resetToFactoryDefaults() {
+            if (!isAdminAuthenticated) return;
+            if (confirm('Möchtest du wirklich alle Projekte und Texte auf den Werkszustand zurücksetzen?')) {
+                projects = [...defaultProjects];
+                siteSettings = { ...defaultSettings };
+                saveData();
+                loadData();
+                showToast('🔄 Werkszustand wiederhergestellt!');
+            }
         }
 
         // Modal Handling
@@ -989,7 +1831,6 @@
             document.getElementById('demoOutput').innerText = 'Warte auf Eingabe...';
             document.getElementById('demoPrompt').value = '';
 
-            // Pipeline Stepper Progress
             const s1 = document.getElementById('step-1');
             const s2 = document.getElementById('step-2');
             const s3 = document.getElementById('step-3');
@@ -1018,7 +1859,7 @@
             const val = promptInput.value.trim();
 
             if (!val) {
-                output.innerHTML = `<span style="color: #ffaa00;">⚠️ Bitte zuerst einen Test-Prompt formulieren.</span>`;
+                output.innerHTML = `<span style="color: var(--neon-amber);">⚠️ Bitte zuerst einen Test-Prompt formulieren.</span>`;
                 return;
             }
 
@@ -1026,72 +1867,44 @@
 
             setTimeout(() => {
                 if (selectedProject) {
-                    output.innerHTML = `<strong style="color:var(--neon-green);">[${selectedProject.title} Inference]:</strong> "Synthetisierte Antwort auf: <i>${escapeHtml(val)}</i> mit 99.4% Konfidenz."`;
+                    output.innerHTML = `<strong style="color:var(--neon-green);">[${escapeHtml(selectedProject.title)} Inference]:</strong> "Synthetisierte Ausgabe zu: <i>${escapeHtml(val)}</i> [Latenz 24ms, Konfidenz 99.8%]"`;
                 } else {
                     output.innerHTML = `Antwort generiert.`;
                 }
-            }, 500);
+            }, 400);
         }
 
         function escapeHtml(str) {
-            return String(str)
+            return String(str || '')
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;');
         }
 
-        // Mandatory Zoom Prevention
+        // Keyboard Enter listener for login
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                if (currentView === 'cms' && !isAdminAuthenticated) {
+                    handleAdminLogin();
+                }
+            }
+        });
+
+        // Double-click zoom prevention
         document.body.addEventListener('dblclick', function(event) {
             event.preventDefault();
         });
 
+        // Android focus crash safety
+        document.addEventListener("focusin", function(e) {
+            if (e.target.tagName === "INPUT" && (e.target.type === "time" || e.target.type === "date" || e.target.type === "datetime-local")) {
+                setTimeout(() => e.target.blur(), 100);
+            }
+        });
+
         // Initialize on load
         window.addEventListener('load', loadData);
-    
-
-// Android WebView focus crash prevention
-document.addEventListener("focusin", function(e) {
-    if (e.target.tagName === "INPUT" && (e.target.type === "time" || e.target.type === "date" || e.target.type === "datetime-local")) {
-        setTimeout(() => e.target.blur(), 100);
-    }
-});
-
-// Time picker functionality for Android compatibility
-function showTimePicker(inputId) {
-    const input = document.getElementById(inputId);
-    if (!input) return;
-    
-    input.blur();
-    document.activeElement.blur();
-    
-    // Simple time picker using prompt (can be enhanced with custom modal)
-    const currentTime = input.value || "12:00";
-    const newTime = prompt("Enter time (HH:MM):", currentTime);
-    
-    if (newTime && /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(newTime)) {
-        input.value = newTime;
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-}
-
-// Date picker functionality for Android compatibility  
-function showDatePicker(inputId) {
-    const input = document.getElementById(inputId);
-    if (!input) return;
-    
-    input.blur();
-    document.activeElement.blur();
-    
-    // Simple date picker using prompt (can be enhanced with custom modal)
-    const currentDate = input.value || new Date().toISOString().split('T')[0];
-    const newDate = prompt("Enter date (YYYY-MM-DD):", currentDate);
-    
-    if (newDate && /^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
-        input.value = newDate;
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-}
-</script>
+    </script>
 </body>
-</html>
+    </html>
