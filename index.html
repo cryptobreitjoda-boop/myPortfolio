@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JodaAI Hub - Neural Portfolio</title>
+    <style>
+        :root {
+            --bg-main: #0a0c16;
+            --bg-card: rgba(18, 22, 39, 0.75);
+            --bg-card-hover: rgba(28, 34, 60, 0.85);
+            --neon-cyan: #00f0ff;
+            --neon-purple: #9d4edd;
+            --neon-pink: #ff007f;
+            --neon-green: #00ff88;
+            --text-main: #f0f4fc;
+            --text-muted: #8e9bb4;
+            --border-glow: rgba(0, 240, 255, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glow-shadow: 0 0 25px rgba(0, 240, 255, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--bg-main);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(157, 78, 221, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.12) 0%, transparent 45%),
+                linear-gradient(180deg, #07080e 0%, var(--bg-main) 100%);
+            color: var(--text-main);
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            overflow-x: hidden;
+        }
+
+        /* Ambient animated grid */
+        .cyber-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-container {
+            width: min(94vw, 1100px);
+            max-height: 94vh;
+            background: rgba(10, 13, 24, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glow);
+            border-radius: clamp(16px, 3vw, 28px);
+            box-shadow: var(--glow-shadow), 0 20px 50px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Top Header */
+        header {
+            padding: clamp(1rem, 2.5vw, 1.5rem) clamp(1.2rem, 3vw, 2rem);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(18, 22, 39, 0.6);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+
+        .brand-title {
+            font-size: clamp(1.1rem, 2.8vw, 1.4rem);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            background: linear-gradient(90deg, #fff, var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .neural-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--neon-green);
+            background: rgba(0, 255, 136, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            font-weight: 600;
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            background-color: var(--neon-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--neon-green);
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            padding: 8px 12px;
+            gap: 8px;
+            background: rgba(14, 17, 30, 0.9);
+            border-bottom: 1px solid var(--glass-border);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .nav-tabs::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            flex: 1;
+            min-width: fit-content;
+            padding: 8px 14px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: rgba(0, 240, 255, 0.15);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.1);
+        }
+
+        /* Scrollable Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: clamp(1rem, 3vw, 1.8rem);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-glow) transparent;
+        }
+
+        .main-content::-webkit-scrollbar {
+            width: 5px;
+        }
+        .main-content::-webkit-scrollbar-thumb {
+            background: var(--border-glow);
+            border-radius: 10px;
+        }
+
+        /* Hero Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(28, 34, 60, 0.7) 0%, rgba(157, 78, 221, 0.15) 100%);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: clamp(1.2rem, 3vw, 1.8rem);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-banner::after {
+            content: '⚡';
+            position: absolute;
+            right: -10px;
+            bottom: -20px;
+            font-size: 110px;
+            opacity: 0.05;
+            pointer-events: none;
+        }
+
+        .hero-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--neon-cyan);
+            margin-bottom: 6px;
+        }
+
+        .hero-title {
+            font-size: clamp(1.2rem, 3.5vw, 1.8rem);
+            font-weight: 800;
+            line-height: 1.25;
+            margin-bottom: 8px;
+        }
+
+        .hero-desc {
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            color: var(--text-muted);
+            line-height: 1.5;
+            max-width: 650px;
+        }
+
+        /* Section Title & Filter */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .section-title {
+            font-size: clamp(1rem, 2.2vw, 1.25rem);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-badges {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .badge-pill {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .badge-pill.active, .badge-pill:hover {
+            background: rgba(0, 240, 255, 0.2);
+            color: var(--neon-cyan);
+            border-color: rgba(0, 240, 255, 0.4);
+        }
+
+        /* Pipeline Grid */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: clamp(1rem, 2.5vw, 1.3rem);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            background: var(--bg-card-hover);
+            border-color: rgba(0, 240, 255, 0.3);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .card-avatar {
+            font-size: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .stage-pill {
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stage-idea { background: rgba(255, 170, 0, 0.15); color: #ffaa00; border: 1px solid rgba(255, 170, 0, 0.3); }
+        .stage-dev { background: rgba(157, 78, 221, 0.15); color: var(--neon-purple); border: 1px solid rgba(157, 78, 221, 0.3); }
+        .stage-live { background: rgba(0, 255, 136, 0.15); color: var(--neon-green); border: 1px solid rgba(0, 255, 136, 0.3); }
+
+        .card-body h3 {
+            font-size: 1.05rem;
+            margin-bottom: 4px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .card-body p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Progress Bar for Pipeline */
+        .pipeline-progress-container {
+            margin-top: 4px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .progress-bar-bg {
+            height: 5px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .tech-stack {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .tech-tag {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+        }
+
+        /* Interactive Lab / Sandbox Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(4, 6, 12, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            width: min(90vw, 550px);
+            background: #111422;
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            border-radius: 20px;
+            padding: clamp(1.2rem, 3vw, 1.6rem);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.7), 0 0 20px rgba(0, 240, 255, 0.2);
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-main);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pipeline-stepper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            margin: 10px 0;
+        }
+
+        .pipeline-stepper::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1;
+        }
+
+        .step-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #1b2038;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .step-node.completed .step-circle {
+            background: var(--neon-cyan);
+            border-color: var(--neon-cyan);
+            color: #000;
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .step-node.active .step-circle {
+            background: var(--neon-purple);
+            border-color: var(--neon-purple);
+            color: #fff;
+            box-shadow: 0 0 10px var(--neon-purple);
+        }
+
+        .step-name {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .step-node.completed .step-name, .step-node.active .step-name {
+            color: var(--text-main);
+        }
+
+        .demo-sandbox {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .demo-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        .demo-input:focus {
+            border-color: var(--neon-cyan);
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            color: #050811;
+            font-weight: 700;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+        .primary-btn:active {
+            opacity: 0.8;
+        }
+
+        /* Quick Stats Matrix */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+            font-weight: 800;
+            color: var(--neon-cyan);
+        }
+
+        .stat-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        /* New AI Idea Submission Card */
+        .idea-creator {
+            background: rgba(157, 78, 221, 0.08);
+            border: 1px dashed rgba(157, 78, 221, 0.3);
+            border-radius: 16px;
+            padding: 1.1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .idea-creator input, .idea-creator select {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .idea-creator select option {
+            background: #111422;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 480px) {
+            .project-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cyber-grid"></div>
+
+    <div class="app-container">
+        <!-- Hub Header -->
+        <header>
+            <div class="brand-logo">
+                <div class="logo-icon">🤖</div>
+                <div>
+                    <div class="brand-title">JodaAI Hub</div>
+                    <div style="font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.5px;">NEURAL PIPELINE & LAB</div>
+                </div>
+            </div>
+            <div class="neural-status">
+                <div class="pulse-dot"></div>
+                <span>CORE ACTIVE</span>
+            </div>
+        </header>
+
+        <!-- Stage Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchFilter('all')">🌐 Alle Projekte</button>
+            <button class="tab-btn" onclick="switchFilter('idea')">💡 Konzept & Idee</button>
+            <button class="tab-btn" onclick="switchFilter('dev')">⚙️ In Entwicklung</button>
+            <button class="tab-btn" onclick="switchFilter('live')">🚀 Fertiggestellt</button>
+        </div>
+
+        <!-- Scrollable Main View -->
+        <div class="main-content">
+            <!-- Hero Highlight -->
+            <div class="hero-banner">
+                <span class="hero-tag">AI Architecture Portfolio</span>
+                <h1 class="hero-title">Von der ersten Synapse zum fertigen Modell.</h1>
+                <p class="hero-desc">Willkommen im JodaAI Hub. Verfolge den gesamten Entstehungszyklus innovativer Machine-Learning Modelle, LLM-Agenten und intelligenter Workflows.</p>
+            </div>
+
+            <!-- Stats Matrix -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-total">6</div>
+                    <div class="stat-label">AI Projekte</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: var(--neon-purple);" id="stat-dev">2</div>
+                    <div class="stat-label">Im Training</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: var(--neon-green);" id="stat-live">3</div>
+                    <div class="stat-label">Im Orbit (Live)</div>
+                </div>
+            </div>
+
+            <!-- Projects Grid Section -->
+            <div class="section-header">
+                <h2 class="section-title">🧬 Pipeline Showcase</h2>
+                <div class="filter-badges">
+                    <span class="badge-pill active" onclick="setSubFilter('all', this)">Alle</span>
+                    <span class="badge-pill" onclick="setSubFilter('LLM', this)">LLM & Agents</span>
+                    <span class="badge-pill" onclick="setSubFilter('Vision', this)">Vision & GenAI</span>
+                    <span class="badge-pill" onclick="setSubFilter('Automation', this)">Workflows</span>
+                </div>
+            </div>
+
+            <div class="project-grid" id="projectGrid">
+                <!-- Injected via JavaScript -->
+            </div>
+
+            <!-- Quick Add Idea Module (Persistence Demo) -->
+            <div class="idea-creator">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <strong style="font-size: 0.9rem; color: var(--neon-cyan);">💡 Neue AI Idee einreichen</strong>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">Sync to LocalHub</span>
+                </div>
+                <input type="text" id="newIdeaTitle" placeholder="Projektname (z.B. AutoDoc Copilot)..." />
+                <input type="text" id="newIdeaDesc" placeholder="Kurzbeschreibung & Kernarchitektur..." />
+                <div style="display: flex; gap: 8px;">
+                    <select id="newIdeaCategory" style="flex: 1;">
+                        <option value="LLM">LLM & Agents</option>
+                        <option value="Vision">Vision & GenAI</option>
+                        <option value="Automation">Workflows</option>
+                    </select>
+                    <button class="primary-btn" onclick="addNewIdea()">Eintragen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Project Details & Live Demo -->
+    <div class="modal-overlay" id="projectModal" onclick="closeModalOnBg(event)">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span id="modalEmoji" style="font-size: 1.8rem;">⚡</span>
+                    <div>
+                        <h3 id="modalTitle" style="font-size: 1.2rem; color: #fff;">Model Name</h3>
+                        <span id="modalCategory" style="font-size: 0.75rem; color: var(--neon-cyan);">LLM</span>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+
+            <div class="pipeline-stepper">
+                <div class="step-node" id="step-1">
+                    <div class="step-circle">1</div>
+                    <div class="step-name">Idee</div>
+                </div>
+                <div class="step-node" id="step-2">
+                    <div class="step-circle">2</div>
+                    <div class="step-name">Training</div>
+                </div>
+                <div class="step-node" id="step-3">
+                    <div class="step-circle">3</div>
+                    <div class="step-name">Deploy</div>
+                </div>
+            </div>
+
+            <p id="modalDesc" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;"></p>
+
+            <div class="demo-sandbox">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="font-size: 0.8rem; color: var(--neon-cyan);">✨ Live Playground / Simulation</strong>
+                    <span style="font-size: 0.65rem; color: var(--neon-green);">Inference Ready</span>
+                </div>
+                <input type="text" id="demoPrompt" class="demo-input" placeholder="Prompt an das Modell senden..." />
+                <button class="primary-btn" onclick="runInferenceSimulation()">Neural Inference starten</button>
+                <div id="demoOutput" style="font-size: 0.8rem; color: #cfd6e6; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 6px; min-height: 38px; display: flex; align-items: center;">
+                    Warte auf Eingabe...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Local Storage Identifier
+        const APP_STORAGE_KEY = 'JODA_AI_HUB_STORAGE_V1';
+        window.APP_STORAGE_KEY = APP_STORAGE_KEY;
+
+        // Initial AI Projects State
+        const defaultProjects = [
+            {
+                id: '1',
+                title: 'JodaMind Voice-Agent',
+                desc: 'Autonomer Echtzeit-Sprachagent mit emotionaler Tonalitätsanpassung und RAG-Anbindung.',
+                stage: 'live', // idea, dev, live
+                progress: 100,
+                category: 'LLM',
+                emoji: '🎙️',
+                tags: ['Whisper-v3', 'FastAPI', 'RAG'],
+                details: 'Vollständig implementierte Lösung. Reagiert mit einer Latenz von unter 300ms auf Spracheingaben und adaptiert den Antwortstil basierend auf Sentiment-Analysen.'
+            },
+            {
+                id: '2',
+                title: 'VisionSynth 4D',
+                desc: 'Generierung spatialer 3D-Meshes direkt aus einzelnen 2D-Bildern für WebXR.',
+                stage: 'live',
+                progress: 100,
+                category: 'Vision',
+                emoji: '👓',
+                tags: ['NeRF', 'PyTorch', 'WebGL'],
+                details: 'Fertig trainiertes Gaussian Splatting Modell mit direkter WebGL-Pipeline zur Echtzeit-Renderung im Browser.'
+            },
+            {
+                id: '3',
+                title: 'AutoDoc Copilot',
+                desc: 'Multi-Agenten System zur autonomen Extraktion und Rechnungsprüfung von Dokumenten.',
+                stage: 'live',
+                progress: 100,
+                category: 'Automation',
+                emoji: '📑',
+                tags: ['LangGraph', 'OCR', 'Ollama'],
+                details: 'Erledigt komplexe Extraktionsaufgaben fehlerfrei mit Validierungsschleifen und Export in ERP-Systeme.'
+            },
+            {
+                id: '4',
+                title: 'NeuralCode Refactor',
+                desc: 'Feinabgestimmtes lokales LLM für hochpräzise Code-Refaktorisierung und Security Audits.',
+                stage: 'dev',
+                progress: 65,
+                category: 'LLM',
+                emoji: '💻',
+                tags: ['LoRA', 'Llama-3-8B', 'Quantized'],
+                details: 'Aktuell im Fein-Tuning Prozess auf einem kuratierten Datensatz mit über 50.000 Open-Source Sicherheits-Patches.'
+            },
+            {
+                id: '5',
+                title: 'KreativCanvas AI',
+                desc: 'Iteratives Design-Tool für Vektorgrafiken via Prompt-basiertem Node-Graphen.',
+                stage: 'dev',
+                progress: 40,
+                category: 'Vision',
+                emoji: '🎨',
+                tags: ['Diffusion', 'Canvas API', 'Vector'],
+                details: 'Prototyp mit Canvas-Anbindung läuft. Feinabstimmung des Diffusion-Encoders für SVG-Code-Ausgabe im Gange.'
+            },
+            {
+                id: '6',
+                title: 'BioMetric Emotion Guard',
+                desc: 'Edge-AI Konzept zur ergonomischen Stress- und Ermüdungserkennung am Arbeitsplatz.',
+                stage: 'idea',
+                progress: 15,
+                category: 'Vision',
+                emoji: '🧠',
+                tags: ['EdgeAI', 'Concept', 'TensorFlow Lite'],
+                details: 'Theoretische Architektur ausgearbeitet. Datenschutzkonforme lokale Auswertung auf Raspberry Pi / Jetson Nano geplant.'
+            }
+        ];
+
+        let projects = [];
+        let currentFilter = 'all';
+        let currentSubFilter = 'all';
+        let selectedProject = null;
+
+        // Initialize and Load Data
+        function loadData() {
+            try {
+                const saved = localStorage.getItem(APP_STORAGE_KEY + '_projects');
+                if (saved) {
+                    projects = JSON.parse(saved);
+                } else {
+                    projects = [...defaultProjects];
+                    saveData();
+                }
+            } catch (e) {
+                projects = [...defaultProjects];
+            }
+            renderHub();
+            updateStats();
+        }
+
+        function saveData() {
+            localStorage.setItem(APP_STORAGE_KEY + '_projects', JSON.stringify(projects));
+        }
+
+        function renderHub() {
+            const grid = document.getElementById('projectGrid');
+            grid.innerHTML = '';
+
+            const filtered = projects.filter(p => {
+                const matchesStage = (currentFilter === 'all') || (p.stage === currentFilter);
+                const matchesCat = (currentSubFilter === 'all') || (p.category === currentSubFilter);
+                return matchesStage && matchesCat;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                        🔍 Keine AI-Projekte in dieser Kategorie gefunden.
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const stageClass = p.stage === 'live' ? 'stage-live' : (p.stage === 'dev' ? 'stage-dev' : 'stage-idea');
+                const stageText = p.stage === 'live' ? 'Live & Fertig' : (p.stage === 'dev' ? 'In Training' : 'Konzept / Idee');
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = () => openProjectModal(p);
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-avatar">${p.emoji || '⚡'}</div>
+                        <span class="stage-pill ${stageClass}">${stageText}</span>
+                    </div>
+                    <div class="card-body">
+                        <h3>${escapeHtml(p.title)}</h3>
+                        <p>${escapeHtml(p.desc)}</p>
+                    </div>
+                    <div class="pipeline-progress-container">
+                        <div class="progress-label">
+                            <span>Entwicklungsfortschritt</span>
+                            <strong>${p.progress}%</strong>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width: ${p.progress}%"></div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="tech-stack">
+                            ${p.tags.map(t => `<span class="tech-tag">${escapeHtml(t)}</span>`).join('')}
+                        </div>
+                        <span>🔍 Details</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateStats() {
+            const total = projects.length;
+            const dev = projects.filter(p => p.stage === 'dev').length;
+            const live = projects.filter(p => p.stage === 'live').length;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-dev').innerText = dev;
+            document.getElementById('stat-live').innerText = live;
+        }
+
+        function switchFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${filter}'`));
+            });
+            renderHub();
+        }
+
+        function setSubFilter(cat, elem) {
+            currentSubFilter = cat;
+            document.querySelectorAll('.badge-pill').forEach(b => b.classList.remove('active'));
+            elem.classList.add('active');
+            renderHub();
+        }
+
+        function addNewIdea() {
+            const titleInput = document.getElementById('newIdeaTitle');
+            const descInput = document.getElementById('newIdeaDesc');
+            const catInput = document.getElementById('newIdeaCategory');
+
+            const title = titleInput.value.trim();
+            const desc = descInput.value.trim();
+
+            if (!title || !desc) {
+                alert('Bitte Name und Kurzbeschreibung für das AI-Konzept eingeben!');
+                return;
+            }
+
+            const emojis = { 'LLM': '💬', 'Vision': '👁️', 'Automation': '⚡' };
+
+            const newProject = {
+                id: Date.now().toString(),
+                title: title,
+                desc: desc,
+                stage: 'idea',
+                progress: 10,
+                category: catInput.value,
+                emoji: emojis[catInput.value] || '💡',
+                tags: [catInput.value, 'Konzept', 'V1.0'],
+                details: 'Initiales Konzept im JodaAI Hub registriert. Machbarkeitsanalyse & Architekturdesign laufen.'
+            };
+
+            projects.unshift(newProject);
+            saveData();
+            renderHub();
+            updateStats();
+
+            titleInput.value = '';
+            descInput.value = '';
+        }
+
+        // Modal Handling
+        function openProjectModal(project) {
+            selectedProject = project;
+            document.getElementById('modalEmoji').innerText = project.emoji || '⚡';
+            document.getElementById('modalTitle').innerText = project.title;
+            document.getElementById('modalCategory').innerText = `KATEGORIE: ${project.category.toUpperCase()} • STATUS: ${project.stage.toUpperCase()}`;
+            document.getElementById('modalDesc').innerText = project.details || project.desc;
+            document.getElementById('demoOutput').innerText = 'Warte auf Eingabe...';
+            document.getElementById('demoPrompt').value = '';
+
+            // Pipeline Stepper Progress
+            const s1 = document.getElementById('step-1');
+            const s2 = document.getElementById('step-2');
+            const s3 = document.getElementById('step-3');
+
+            s1.className = 'step-node completed';
+            s2.className = 'step-node' + (project.stage === 'dev' ? ' active' : (project.stage === 'live' ? ' completed' : ''));
+            s3.className = 'step-node' + (project.stage === 'live' ? ' completed' : '');
+
+            document.getElementById('projectModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('projectModal').classList.remove('active');
+            selectedProject = null;
+        }
+
+        function closeModalOnBg(event) {
+            if (event.target.id === 'projectModal') {
+                closeModal();
+            }
+        }
+
+        function runInferenceSimulation() {
+            const promptInput = document.getElementById('demoPrompt');
+            const output = document.getElementById('demoOutput');
+            const val = promptInput.value.trim();
+
+            if (!val) {
+                output.innerHTML = `<span style="color: #ffaa00;">⚠️ Bitte zuerst einen Test-Prompt formulieren.</span>`;
+                return;
+            }
+
+            output.innerHTML = `<span style="color: var(--neon-cyan);">⚡ Neural Engine berechnet Antwort...</span>`;
+
+            setTimeout(() => {
+                if (selectedProject) {
+                    output.innerHTML = `<strong style="color:var(--neon-green);">[${selectedProject.title} Inference]:</strong> "Synthetisierte Antwort auf: <i>${escapeHtml(val)}</i> mit 99.4% Konfidenz."`;
+                } else {
+                    output.innerHTML = `Antwort generiert.`;
+                }
+            }, 500);
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        // Mandatory Zoom Prevention
+        document.body.addEventListener('dblclick', function(event) {
+            event.preventDefault();
+        });
+
+        // Initialize on load
+        window.addEventListener('load', loadData);
+    
+
+// Android WebView focus crash prevention
+document.addEventListener("focusin", function(e) {
+    if (e.target.tagName === "INPUT" && (e.target.type === "time" || e.target.type === "date" || e.target.type === "datetime-local")) {
+        setTimeout(() => e.target.blur(), 100);
+    }
+});
+
+// Time picker functionality for Android compatibility
+function showTimePicker(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    
+    input.blur();
+    document.activeElement.blur();
+    
+    // Simple time picker using prompt (can be enhanced with custom modal)
+    const currentTime = input.value || "12:00";
+    const newTime = prompt("Enter time (HH:MM):", currentTime);
+    
+    if (newTime && /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(newTime)) {
+        input.value = newTime;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+}
+
+// Date picker functionality for Android compatibility  
+function showDatePicker(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    
+    input.blur();
+    document.activeElement.blur();
+    
+    // Simple date picker using prompt (can be enhanced with custom modal)
+    const currentDate = input.value || new Date().toISOString().split('T')[0];
+    const newDate = prompt("Enter date (YYYY-MM-DD):", currentDate);
+    
+    if (newDate && /^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
+        input.value = newDate;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+}
+</script>
+</body>
+</html>
